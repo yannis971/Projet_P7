@@ -62,52 +62,6 @@ class Action:
                 raise ActionException(f"invalid profit : {value}")
 
 
-class ActionManager:
-
-    def __init__(self):
-        self._list_of_actions = []
-
-    def add_action(self, value):
-        if isinstance(value, Action):
-            self._list_of_actions.append(value)
-        else:
-            raise ActionException(f"object is not an instance of Action class : {value}")
-
-    def __str__(self):
-        return "".join([a.__str__() + "\n" for a in self._list_of_actions])
-
-    @property
-    def list_of_actions(self):
-        return self._list_of_actions
-
-
-    def subset_sum(self, numbers, target, partial=[]):
-        partial_sum = sum(partial)
-        print("target :", target, "partial_sum :", partial_sum)
-        if partial_sum == target:
-             print(partial, target)
-        if partial_sum >= target:
-            return
-        for i in range(len(numbers)):
-            n = numbers[i]
-            remaining = numbers[i+1:]
-            print("remaining :", remaining)
-            return self.subset_sum(remaining, target, partial + [n])
-
-    def sum_profit(actions):
-        return sum([action.profit for action in actions])
-
-"""
-def subset_actions(actions, target, partial=[], partial_profit=0, partial_price=0):
-    if partial_price == target:
-        yield partial, partial_profit
-    if partial_price >= target:
-        return
-    for i, action in enumerate(actions):
-        remaining = actions[i + 1:]
-        yield from subset_actions(remaining, target, partial + [action], partial_profit + action.profit, partial_price + action.price)
-"""
-
 def subset_actions(actions, target, partial=[], partial_price=0):
     if partial_price == target:
         yield partial
@@ -117,29 +71,32 @@ def subset_actions(actions, target, partial=[], partial_price=0):
         remaining = actions[i + 1:]
         yield from subset_actions(remaining, target, partial + [action], partial_price + action.price)
 
+
 def sum_profit(actions):
     return sum([action.profit for action in actions])
 
+
 if __name__ == "__main__":
     TIME_DEBUT = time.gmtime()
-    print("Debut :", time.strftime("%a, %d %b %Y %H:%M:%S +0000", TIME_DEBUT))
+    INVEST = 500.0
     with open('actions.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         actions = [Action(**row) for row in reader]
-        actions.sort(key=attrgetter('price'))
-        TIME_INTERMEDIATE = time.gmtime()
-        print("Intermédiaire :", time.strftime("%a, %d %b %Y %H:%M:%S +0000", TIME_INTERMEDIATE))
-        gen = subset_actions(actions, 500.0)
-        TIME_INTERMEDIATE = time.gmtime()
-        print("Intermédiaire :", time.strftime("%a, %d %b %Y %H:%M:%S +0000", TIME_INTERMEDIATE))
-        list_actions = [{'actions': x, 'sum_profit': sum_profit(x)} for x in gen]
+        actions.sort(key=attrgetter('price'), reverse=True)
+        list_actions = [{'actions': x, 'sum_profit': sum_profit(x)} for x in
+                        subset_actions(actions, INVEST)]
         list_actions.sort(key=itemgetter('sum_profit'), reverse=True)
         dico = list_actions[0]
-        print("sum_profit = {:.2f}".format(dico['sum_profit']))
+        print("best profit for {:.2f} € invested = {:.2f} €".format(INVEST, dico['sum_profit']))
         for action in dico['actions']:
             print(action)
+        #for dico in list_actions:
+        #    print("sum_profit = {:.2f}".format(dico['sum_profit']))
+        #    for action in dico['actions']:
+        #        print(action)
+        print("Number of combinations :", len(list_actions))
         TIME_FIN = time.gmtime()
-
+        print("Debut :", time.strftime("%a, %d %b %Y %H:%M:%S +0000", TIME_DEBUT))
         print("Fin :", time.strftime("%a, %d %b %Y %H:%M:%S +0000", TIME_FIN))
         print("time.perf_counter() :", time.perf_counter())
         print("time.process_time() :", time.process_time())
