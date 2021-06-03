@@ -65,8 +65,8 @@ class Action:
 if __name__ == "__main__":
     TIME_DEBUT = time.gmtime()
     # tri du fichier sur valeur (sort on profit)
-    call('sed 1d dataset1_P7.csv | sort -t "," -k3 -n > dataset1_P7_sorted.csv', shell=True)
-    csv_gen = (row[:-1] for row in open("dataset1_P7_sorted.csv",  newline=''))
+    call('sed 1d actions.csv | sort -t "," -k3 -n > actions_sorted.csv', shell=True)
+    csv_gen = (row[:-1] for row in open("actions_sorted.csv",  newline=''))
     names = []
     values = []
     weights = []

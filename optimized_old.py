@@ -63,10 +63,10 @@ class Action:
 
 
 if __name__ == "__main__":
-    TIME_DEBUT = time.gmtime()
+    START_TIME = time.time()
     # tri du fichier sur valeur (sort on profit)
-    call('sed 1d dataset1_P7.csv | sort -t "," -k3 -n > dataset1_P7_sorted.csv', shell=True)
-    csv_gen = (row[:-1] for row in open("dataset1_P7_sorted.csv",  newline=''))
+    call('sed 1d actions.csv | sort -t "," -k3,3n > actions_sorted.csv', shell=True)
+    csv_gen = (row[:-1] for row in open("actions_sorted.csv",  newline=''))
     names = []
     values = []
     weights = []
@@ -96,8 +96,7 @@ if __name__ == "__main__":
                 m[i][j] = max((values[i] + m[i-1][j-weights[i]]), m[i-1][j])
     for i in range(N):
         print("i :", i, "values[i] :", values[i], "max(m[i]) :", max(m[i]))
-    TIME_FIN = time.gmtime()
-    print("Debut :", time.strftime("%a, %d %b %Y %H:%M:%S +0000", TIME_DEBUT))
-    print("Fin :", time.strftime("%a, %d %b %Y %H:%M:%S +0000", TIME_FIN))
+    END_TIME = time.time()
+    print("Time elapsed : ", (END_TIME - START_TIME), "sec")
     print("time.perf_counter() :", time.perf_counter())
     print("time.process_time() :", time.process_time())

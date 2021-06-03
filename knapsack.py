@@ -4,7 +4,7 @@ import time
 
 if __name__ == "__main__":
     TIME_DEBUT = time.gmtime()
-    values = [1, 4, 5, 18]
+    values = [1, 4, 5, 7]
     weights = [1, 3, 4, 5]
     N = len(values)
     print("N :", N)
@@ -21,7 +21,13 @@ if __name__ == "__main__":
             if j < weights[i]:
                 m[i][j] = m[i-1][j]
             else:
-                m[i][j] = max((values[i] + m[i-1][j-weights[i]]), m[i-1][j])
+                a = values[i] + m[i-1][j-weights[i]]
+                b = m[i-1][j]
+                m[i][j] = max(a, b)
+                print("i =", i, "j =", j)
+                print("a =", a, "b =", b)
+                print("m[i][j] =", m[i][j])
+
     for i in range(N):
         print("i =", i, "values[i] =", values[i], "max(m[i]) =", max(m[i]), "m[i] =", m[i])
     TIME_FIN = time.gmtime()

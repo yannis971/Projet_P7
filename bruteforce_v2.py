@@ -92,7 +92,7 @@ def sum_price(actions):
 
 
 if __name__ == "__main__":
-    TIME_DEBUT = time.gmtime()
+    START_TIME = time.time()
     INVEST = 500.0
     with open('actions.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
@@ -113,8 +113,7 @@ if __name__ == "__main__":
         print("La somme investie réellement est de : {:.2f} €".format(sum_price(dico['actions'])))
         for action in dico['actions']:
             print(action)
-        TIME_FIN = time.gmtime()
-        print("Debut :", time.strftime("%a, %d %b %Y %H:%M:%S +0000", TIME_DEBUT))
-        print("Fin :", time.strftime("%a, %d %b %Y %H:%M:%S +0000", TIME_FIN))
+        END_TIME = time.time()
+        print("Elapsed time : ", (END_TIME - START_TIME), "sec")
         print("time.perf_counter() :", time.perf_counter())
         print("time.process_time() :", time.process_time())
