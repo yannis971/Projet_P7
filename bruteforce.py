@@ -1,23 +1,24 @@
+# -*- coding : utf8 -*-
+
 import csv
 import time
-import sys
 
 from operator import attrgetter, itemgetter
-
-import pandas as pd
 
 
 class ActionException(Exception):
     """
-    classe JoueurExeption pour lever ou intercepter une exception lors du
-    traitement d'un objet de type Joueur
+    classe ActionException pour lever une exception lors du
+    traitement d'un objet de type Action
     """
     def __init__(self, message):
         self.message = message
 
 
 class Action:
-
+    """
+    classe Action
+    """
     def __init__(self, **kwargs):
         for (attr_name, attr_value) in kwargs.items():
             setattr(self, attr_name, attr_value)
@@ -64,43 +65,61 @@ class Action:
             except ValueError:
                 raise ActionException(f"invalid profit : {value}")
 
-def subset_actions(actions, target, partial=[], partial_price=0):
-    if partial_price == target:
-        yield partial
-    if partial_price >= target:
+
+def subset_actions(actions, target_price_min, target_price_max, subset=[], partial_price=0):
+    """
+    Fonction genératrice et récursive qui renvoie un objet generator correspondant à la liste
+    des N-uplets d'actions dont la somme des prix est égale à un montant cible (target_price)
+    """
+    if target_price_min <= partial_price <= target_price_max:
+        yield subset
+    if partial_price > target_price_max:
         return
     for i, action in enumerate(actions):
         remaining = actions[i + 1:]
-        yield from subset_actions(remaining, target, partial + [action], partial_price + action.price)
+        yield from subset_actions(remaining, target_price_min, target_price_max, subset + [action], partial_price + action.price)
+
 
 def sum_profit(actions):
+    """
+    Fonction renvoyant la somme des gains d'une liste d'actions
+    """
     return sum([action.profit for action in actions])
 
+def sum_price(actions):
+    """
+    Fonction renvoyant la somme des gains d'une liste d'actions
+    """
+    return sum([action.price for action in actions])
+
 if __name__ == "__main__":
-    TIME_DEBUT = time.gmtime()
-    CSV_FILE = "actions.csv"
-    print("Debut :", time.strftime("%a, %d %b %Y %H:%M:%S +0000", TIME_DEBUT))
-    try:
-        df = pd.read_csv(CSV_FILE)
-    except IOError:
-        print(f"error read file {CSV_FILE}")
-        sys.exit(1)
-    else:
-        sorted_df = df.sort_values(by=["price"], ascending=False)
-        actions = [Action(**row) for row in sorted_df.to_dict('records')]
-        TIME_INTERMEDIATE = time.gmtime()
-        print("Intermédiaire :", time.strftime("%a, %d %b %Y %H:%M:%S +0000", TIME_INTERMEDIATE))
-        gen = subset_actions(actions, 500.0)
-        TIME_INTERMEDIATE = time.gmtime()
-        print("Intermédiaire :", time.strftime("%a, %d %b %Y %H:%M:%S +0000", TIME_INTERMEDIATE))
-        list_actions = [{'actions': x, 'sum_profit': sum_profit(x)} for x in gen]
+    START_TIME = time.time()
+    INVEST = 500.0
+    with open('data/bruteforce.csv', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        actions = [Action(**row) for row in reader]
+        actions.sort(key=attrgetter('price'), reverse=True)
+        list_actions = [{'actions': x, 'sum_profit': sum_profit(x)} for x in
+                        subset_actions(actions, INVEST - 5.0,INVEST)]
         list_actions.sort(key=itemgetter('sum_profit'), reverse=True)
+
+        INTER_TIME = time.time()
+
+        for dico in list_actions:
+            print("Gain = {:.2f}".format(dico['sum_profit']))
+            for action in dico['actions']:
+                print(action)
+        print("Nombre de combinaisons  trouvées :", len(list_actions))
+
         dico = list_actions[0]
-        print("sum_profit = {:.2f}".format(dico['sum_profit']))
+        print("Le meilleur gain pour {:.2f} € investis est de : {:.2f} €".format(INVEST, dico['sum_profit']))
+        print("La somme investie réellement est de : {:.2f} €".format(sum_price(dico['actions'])))
+
         for action in dico['actions']:
             print(action)
-        TIME_FIN = time.gmtime()
 
-        print("Fin :", time.strftime("%a, %d %b %Y %H:%M:%S +0000", TIME_FIN))
+        END_TIME = time.time()
+        print("Partial Elapsed time : ", (INTER_TIME - START_TIME), "sec")
+        print("Total Elapsed time : ", (END_TIME - START_TIME), "sec")
         print("time.perf_counter() :", time.perf_counter())
         print("time.process_time() :", time.process_time())
