@@ -1,58 +1,65 @@
 # -*- coding : utf8 -*-
 
-import sys
 import time
 import pandas as pd
 
-START_TIME = time.time()
-df = pd.read_csv('data/dataset1_P7.csv')
-df.sort_values(by=['profit', 'price'], ascending=True, inplace=True)
-records = [(name, price, profit) for (name, price, profit) in df.loc[df['price'] > 0].to_records(index=False)]
 
-N = len(records)    # Nombre d'actions
-W = 501             # Investissement maximal + 1
+def calculate_and_print_knapsack(W, prices, profits, N, names):
+    """
+    Function tha resolve the 0-1 knapsack problem and prints the combination of items that matches
+    """
+    global START_TIME
+    INTER_TIME = time.time()
+    print("Partial Elapsed time 01 - avant init matrice: ", (INTER_TIME - START_TIME), "sec")
 
-# Initialisation de la matrice de données
-matrice = [[0 for _ in range(W)] for _ in range(N)]
+    matrice = [[0 for _ in range(W + 1)] for _ in range(N + 1)]
 
-# Initialisation de la première ligne de la matrice
-(_, weight, value) = records[0]
-for j in range(0, W, 1):
-    if j < int(weight):
-        matrice[0][j] = 0
-    else:
-        matrice[0][j] = value
+    INTER_TIME = time.time()
+    print("Partial Elapsed time 02 - après init matrice: ", (INTER_TIME - START_TIME), "sec")
 
-# Boucle d'alimentation de la matrice avec les combinaisons d'actions
-for i in range(1, N, 1):
-    (_, weight, value) = records[i]
-    for j in range(0, W, 1):
-        if j < int(weight):
-            matrice[i][j] = matrice[i - 1][j]
+    for i in range(N + 1):
+        for j in range(W + 1):
+            if i == 0 or j == 0:
+                matrice[i][j] = 0
+            elif prices[i - 1] <= j:
+                matrice[i][j] = max(profits[i - 1] + matrice[i - 1][j - prices[i - 1]], matrice[i - 1][j])
+            else:
+                matrice[i][j] = matrice[i - 1][j]
+
+    INTER_TIME = time.time()
+    print("Partial Elapsed time 03 - après alimentation matrice: ", (INTER_TIME - START_TIME), "sec")
+
+    max_profit = matrice[N][W]
+    print("Profit maximal = {:.2f} €".format(max_profit))
+
+    j = min([j for j in range(W + 1) if matrice[N][j] == max_profit])
+    print("Investissement = {:.2f} €".format(j / 100))
+
+    for i in range(N, 0, -1):
+        if max_profit <= 0:
+            break
+        if max_profit == matrice[i - 1][j]:
+            continue
         else:
-            matrice[i][j] = max((value + matrice[i - 1][j - int(weight)]), matrice[i - 1][j])
+            print("{},{:.2f},{:.2f}".format(names[i - 1], prices[i - 1] / 100, profits[i - 1]))
+            max_profit -= profits[i - 1]
+            j -= prices[i - 1]
 
-# Détermination du profit maximal et de l'investissement correspondant
-max_profit = max(matrice[-1])
-investment = min([j for j in range(W) if matrice[-1][j] == max_profit])
-print("Le profit maximum est obtenu pour un investissement de {:.2f} €. Ce profit atteint la valeur de {:.2f} €.".format(investment, max_profit))
 
-INTER_TIME = time.time()
-print("Partial Elapsed time : ", (INTER_TIME-START_TIME), "sec")
-
-# Affichage de la combinaison d'actions
-print("La combinaison d'actions est la suivante :")
-while max_profit > 0:
-    try:
-        (i, j) = min([(i, j) for j in range(W) for i in range(N) if abs(matrice[i][j] - max_profit) < 0.001])
-    except ValueError:
-        print("ValueError")
-        print("max_profit :", max_profit)
-        sys.exit(1)
-    (name, weight, value) = records[i]
-    print(name, weight, value, j)
-    max_profit -= value
-    N -= 1
-    W -= 1
-END_TIME = time.time()
-print("Elapsed time : ", (END_TIME-START_TIME), "sec")
+if __name__ == '__main__':
+    START_TIME = time.time()
+    df = pd.read_csv('data/dataset2_P7.csv')
+    records = [(name, int(price * 100), profit, profit / price)
+               for (name, price, profit) in df.to_records(index=False)
+               if profit > 0 and price > 0]
+    records.sort(key=lambda x: x[3], reverse=True)
+    profits = [profit for (name, price, profit, _) in records]
+    prices = [price for (name, price, profit, _) in records]
+    names = [name for (name, price, profit, _) in records]
+    W = 50000
+    N = len(profits)
+    calculate_and_print_knapsack(W, prices, profits, N, names)
+    END_TIME = time.time()
+    print("Total Elapsed time : ", (END_TIME - START_TIME), "sec")
+    print("time.perf_counter() :", time.perf_counter())
+    print("time.process_time() :", time.process_time())
