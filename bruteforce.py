@@ -120,6 +120,9 @@ if __name__ == "__main__":
 
         END_TIME = time.time()
         print("Partial Elapsed time : ", (INTER_TIME - START_TIME), "sec")
-        print("Total Elapsed time : ", (END_TIME - START_TIME), "sec")
-        print("time.perf_counter() :", time.perf_counter())
-        print("time.process_time() :", time.process_time())
+        # print elapsed time
+        print("Total elapsed time  : ", (END_TIME - START_TIME), "sec")
+        # print process_time() : the sum of the system and user CPU time used by the program
+        print("time.process_time() :", time.process_time(), "sec")
+        # print perf_counter() : performance counter
+        print("time.perf_counter() :", time.perf_counter(), "sec")
