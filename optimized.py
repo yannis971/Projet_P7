@@ -4,62 +4,65 @@ import time
 import pandas as pd
 
 
-def calculate_and_print_knapsack(W, prices, profits, N, names):
+def calculate_and_print_knapsack(W, records):
     """
-    Function tha resolve the 0-1 knapsack problem and prints the combination of items that matches
+    Function that resolves the 0-1 knapsack problem and prints the combination of items that matches
     """
-    global START_TIME
-    INTER_TIME = time.time()
-    print("Partial Elapsed time 01 - avant init matrice: ", (INTER_TIME - START_TIME), "sec")
 
+    N = len(records)
+
+    knap_sack = [0 for _ in range(W + 1)]
     matrice = [[0 for _ in range(W + 1)] for _ in range(N + 1)]
 
-    INTER_TIME = time.time()
-    print("Partial Elapsed time 02 - après init matrice: ", (INTER_TIME - START_TIME), "sec")
+    for i in range(1, N + 1):
+        for j in range(W, 0, -1):
+            (name, weight, value, _) = records[i - 1]
+            if weight <= j:
+                knap_sack[j] = max(knap_sack[j], knap_sack[j - weight] + value)
+            matrice[i][j] = knap_sack[j]
+        # Quit the loop when max profit is found
+        if matrice[i][W] == matrice[i][W - 1] and matrice[i][W] == matrice[i-1][W]:
+            N = i
+            break
 
-    for i in range(N + 1):
-        for j in range(W + 1):
-            if i == 0 or j == 0:
-                matrice[i][j] = 0
-            elif prices[i - 1] <= j:
-                matrice[i][j] = max(profits[i - 1] + matrice[i - 1][j - prices[i - 1]], matrice[i - 1][j])
-            else:
-                matrice[i][j] = matrice[i - 1][j]
-
-    INTER_TIME = time.time()
-    print("Partial Elapsed time 03 - après alimentation matrice: ", (INTER_TIME - START_TIME), "sec")
-
-    max_profit = matrice[N][W]
+    max_profit = knap_sack[W]
     print("Profit maximal = {:.2f} €".format(max_profit))
 
-    j = min([j for j in range(W + 1) if matrice[N][j] == max_profit])
+    j = min([j for j in range(W + 1) if knap_sack[j] == max_profit])
     print("Investissement = {:.2f} €".format(j / 100))
 
+    print("Listes des actions (name)")
     for i in range(N, 0, -1):
         if max_profit <= 0:
             break
         if max_profit == matrice[i - 1][j]:
             continue
         else:
-            print("{},{:.2f},{:.2f}".format(names[i - 1], prices[i - 1] / 100, profits[i - 1]))
-            max_profit -= profits[i - 1]
-            j -= prices[i - 1]
+            (name, price, profit, _) = records[i-1]
+            print(name)
+            max_profit -= profit
+            j -= price
 
 
 if __name__ == '__main__':
     START_TIME = time.time()
-    df = pd.read_csv('data/dataset2_P7.csv')
+    data_frame = pd.read_csv('data/dataset2_P7.csv')
+
+    # create a list of records from data_frame adding a column ration (profit/price)
     records = [(name, int(price * 100), profit, profit / price)
-               for (name, price, profit) in df.to_records(index=False)
+               for (name, price, profit) in data_frame.to_records(index=False)
                if profit > 0 and price > 0]
+
+    # sort items on ratio (profit/price) decreasing order
     records.sort(key=lambda x: x[3], reverse=True)
-    profits = [profit for (name, price, profit, _) in records]
-    prices = [price for (name, price, profit, _) in records]
-    names = [name for (name, price, profit, _) in records]
-    W = 50000
-    N = len(profits)
-    calculate_and_print_knapsack(W, prices, profits, N, names)
+
+    # call the function that resolves the knapsack problem
+    calculate_and_print_knapsack(50000, records)
+
     END_TIME = time.time()
-    print("Total Elapsed time : ", (END_TIME - START_TIME), "sec")
-    print("time.perf_counter() :", time.perf_counter())
-    print("time.process_time() :", time.process_time())
+    # print elapsed time
+    print("Total elapsed time  : ", (END_TIME - START_TIME), "sec")
+    # print process_time() : the sum of the system and user CPU time used by the program
+    print("time.process_time() :", time.process_time(), "sec")
+    # print perf_counter() : performance counter
+    print("time.perf_counter() :", time.perf_counter(), "sec")
