@@ -44,7 +44,7 @@ def calculate_and_print_knapsack(max_weight: int, items: [], results_file) -> No
     """
 
     number_of_items = len(items)  # number of items
-
+    min_weight = items[-1][1]  # minimum weight is the last item's weight
     knapsacks = [0 for _ in range(max_weight + 1)]
     matrices = [[0 for _ in range(max_weight + 1)] for _ in range(number_of_items + 1)]
 
@@ -55,8 +55,9 @@ def calculate_and_print_knapsack(max_weight: int, items: [], results_file) -> No
                 knapsacks[j] = max(knapsacks[j], knapsacks[j - price] + profit)
             matrices[i][j] = knapsacks[j]
         # Quit the loop when max profit is found
-        if matrices[i][max_weight] == matrices[i][max_weight - 1] \
-                and matrices[i][max_weight] == matrices[i - 1][max_weight]:
+        # i.e. when the line from where the last knapsacks index between
+        # (max_weight - min_weight) and max_weight do not vary anymore
+        if matrices[i][(max_weight - min_weight):] == matrices[i - 1][(max_weight - min_weight):]:
             number_of_items = i
             break
 
@@ -73,7 +74,7 @@ def calculate_and_print_knapsack(max_weight: int, items: [], results_file) -> No
             if max_profit == matrices[i - 1][j]:
                 continue
             (name, price, profit, _) = items[i - 1]
-            file.write(name+"\n")
+            file.write(f"{name}\n")
             max_profit -= profit
             j -= price
 
