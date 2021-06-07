@@ -88,10 +88,16 @@ def subset_actions(list_of_actions, target_price_min, target_price_max, subset, 
     Fonction genératrice et récursive qui renvoie un objet generator correspondant à la liste
     des N-uplets d'actions dont la somme des prix est égale à un montant cible (target_price)
     """
+    # Base Case
+    if target_price_max <= 0.0:
+        return
     if target_price_min <= partial_price <= target_price_max:
         yield subset
-    if partial_price > target_price_max:
+    # Quit generator if list_of_actions is empty or
+    # partial_price is greater than target_price_max
+    if not list_of_actions or partial_price > target_price_max:
         return
+    # Recursion on subset_actions function for each item of list_of_actions
     for i, item in enumerate(list_of_actions):
         remaining = list_of_actions[i + 1:]
         yield from subset_actions(remaining, target_price_min, target_price_max,
@@ -119,28 +125,35 @@ if __name__ == "__main__":
     INVEST = 500.0
     with open('data/bruteforce.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
-        actions = [Action(**row) for row in reader]
+        actions = []
+        for row in reader:
+            try:
+                actions.append(Action(**row))
+            except ActionException as action_error:
+                print(f"action non prise en compte - {action_error}")
         actions.sort(key=attrgetter('price'), reverse=True)
+        INVEST_MIN = max(actions[-1].price, 0.0)
         list_actions = [{'list_of_actions': x, 'sum_profit': sum_profit(x)} for x in
-                        subset_actions(actions, INVEST - 499.0, INVEST, [])]
+                        subset_actions(actions, INVEST_MIN, INVEST, [])]
         list_actions.sort(key=itemgetter('sum_profit'), reverse=True)
 
         FILE = 'results/results_bruteforce.txt'
 
         with open(FILE, 'w', encoding='utf-8') as file:
-            dico = list_actions[0]
-            file.write("Profit maximal = {:.2f} €\n".format(dico['sum_profit']))
-            file.write("Somme investie = {:.2f} €\n".format(sum_price(dico['list_of_actions'])))
-            file.write(f"Nombre de combinaisons  trouvées : {len(list_actions)}\n")
-            file.write("Liste des combinaisons triées selon l'ordre décroissant du profit\n")
-            for dico in list_actions:
-                file.write("Gain = {:.2f}\n".format(dico['sum_profit']))
+            if list_actions:
+                dico = list_actions[0]
+                file.write("Profit maximal = {:.2f} €\n".format(dico['sum_profit']))
+                file.write("Somme investie = {:.2f} €\n".format(sum_price(dico['list_of_actions'])))
+                file.write(f"Nombre de combinaisons trouvées : {len(list_actions)}\n")
+                file.write("Liste des actions\n")
                 for action in dico['list_of_actions']:
                     file.write(action.__str__() + "\n")
+            else:
+                file.write("Aucune action trouvée pour un gain max = {:.2f} €\n".format(INVEST))
 
         END_TIME = time.time()
         # print elapsed time
-        print("Total elapsed time  : ", (END_TIME - START_TIME), "sec")
+        print("Total elapsed time  :", (END_TIME - START_TIME), "sec")
         # print process_time() : the sum of the system and user CPU time used by the program
         print("time.process_time() :", time.process_time(), "sec")
         # print perf_counter() : performance counter

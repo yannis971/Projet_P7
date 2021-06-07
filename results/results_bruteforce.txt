@@ -1,0 +1,14 @@
+Profit maximal = 99.08 €
+Somme investie = 498.00 €
+Nombre de combinaisons trouvées : 813346
+Liste des actions
+Action-20, 114.0, 20.52
+Action-6, 80.0, 20.0
+Action-4, 70.0, 14.0
+Action-5, 60.0, 10.2
+Action-11, 42.0, 7.14
+Action-13, 38.0, 8.74
+Action-10, 34.0, 9.18
+Action-8, 26.0, 2.86
+Action-19, 24.0, 5.04
+Action-18, 10.0, 1.4

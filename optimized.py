@@ -49,8 +49,8 @@ def calculate_and_print_knapsack(max_weight: int, items: [], results_file) -> No
     matrices = [[0 for _ in range(max_weight + 1)] for _ in range(number_of_items + 1)]
 
     for i in range(1, number_of_items + 1):
+        (_, price, profit, _) = items[i - 1]
         for j in range(max_weight, 0, -1):
-            (_, price, profit, _) = items[i - 1]
             if price <= j:
                 knapsacks[j] = max(knapsacks[j], knapsacks[j - price] + profit)
             matrices[i][j] = knapsacks[j]
