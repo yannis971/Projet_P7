@@ -44,13 +44,13 @@ def calculate_and_print_knapsack(max_weight: int, items: [], results_file) -> No
     """
 
     number_of_items = len(items)  # number of items
-    min_weight = items[-1][1]  # minimum weight is the last item's weight
-    knapsacks = [0 for _ in range(max_weight + 1)]
-    matrices = [[0 for _ in range(max_weight + 1)] for _ in range(number_of_items + 1)]
+    min_weight = items[-1][1]  # minimum weight is the last item's price
+    knapsacks = [0] * (max_weight + 1)
+    matrices = [[0] * (max_weight + 1) for _ in range(number_of_items + 1)]
 
     for i in range(1, number_of_items + 1):
+        (_, price, profit, _) = items[i - 1]
         for j in range(max_weight, 0, -1):
-            (_, price, profit, _) = items[i - 1]
             if price <= j:
                 knapsacks[j] = max(knapsacks[j], knapsacks[j - price] + profit)
             matrices[i][j] = knapsacks[j]
@@ -65,16 +65,16 @@ def calculate_and_print_knapsack(max_weight: int, items: [], results_file) -> No
     j = min([j for j in range(max_weight + 1) if knapsacks[j] == max_profit])
 
     with open(results_file, 'w', encoding='utf-8') as file:
-        file.write("Profit maximal = {:.2f} €\n".format(max_profit))
-        file.write("Investissement = {:.2f} €\n".format(j / 100))
-        file.write("Liste des actions (name)\n")
+        file.write(f'Profit maximal = {max_profit:.2f} €\n')
+        file.write(f'Investissement = {(j / 100):.2f} €\n')
+        file.write('Liste des actions\n')
         for i in range(number_of_items, 0, -1):
             if max_profit <= 0:
                 break
             if max_profit == matrices[i - 1][j]:
                 continue
             (name, price, profit, _) = items[i - 1]
-            file.write(f"{name}\n")
+            file.write(f'{name}\n')
             max_profit -= profit
             j -= price
 
@@ -84,7 +84,6 @@ if __name__ == '__main__':
     if not args.file:
         help_message()
         sys.exit(0)
-
     START_TIME = time.time()
     data_frame = pd.read_csv(args.file)
 
@@ -95,15 +94,18 @@ if __name__ == '__main__':
 
     # sort items on ratio (profit/price) decreasing order
     records.sort(key=lambda x: x[3], reverse=True)
+
+    # path to file results
     RESULTS_FILE = args.file.replace("data/", "results/results_").replace("csv", "txt")
-    # call the function that resolves the knapsack problem
+
+    # call the function that resolves the 0-1 knapsack problem
     calculate_and_print_knapsack(50000, records, RESULTS_FILE)
 
     END_TIME = time.time()
     # print elapsed time
-    print("Total elapsed time  : ", (END_TIME - START_TIME), "sec")
+    print(f'Total elapsed time  : {END_TIME - START_TIME} sec')
     # print process_time() : the sum of the system and user CPU time used by the program
-    print("time.process_time() :", time.process_time(), "sec")
+    print(f'time.process_time() : {time.process_time()} sec')
     # print perf_counter() : performance counter
-    print("time.perf_counter() :", time.perf_counter(), "sec")
-    print("You can view the results in file :", RESULTS_FILE)
+    print(f'time.perf_counter() : {time.perf_counter()} sec')
+    print(f'You can view the results in file {RESULTS_FILE}')
