@@ -1,6 +1,6 @@
 Profit maximal = 2387.63 €
 Investissement = 499.92 €
-Liste des actions (name)
+Liste des actions
 Share-TQVQ
 Share-CVLS
 Share-QUQS

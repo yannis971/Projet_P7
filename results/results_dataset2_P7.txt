@@ -1,6 +1,6 @@
 Profit maximal = 1609.68 €
 Investissement = 499.84 €
-Liste des actions (name)
+Liste des actions
 Share-DHIE
 Share-ZKOZ
 Share-TMRA
