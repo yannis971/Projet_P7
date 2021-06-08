@@ -46,18 +46,19 @@ def calculate_and_print_knapsack(max_weight: int, items: [], results_file) -> No
     number_of_items = len(items)  # number of items
     min_weight = items[-1][1]  # minimum weight is the last item's price
     knapsacks = [0] * (max_weight + 1)
-    matrices = [[0] * (max_weight + 1) for _ in range(number_of_items + 1)]
+    matrices = [knapsacks[:]]
 
+    # Loop to get combination
     for i in range(1, number_of_items + 1):
         (_, price, profit, _) = items[i - 1]
         for j in range(max_weight, 0, -1):
             if price <= j:
                 knapsacks[j] = max(knapsacks[j], knapsacks[j - price] + profit)
-            matrices[i][j] = knapsacks[j]
+        matrices.append(knapsacks[:])
         # Quit the loop when max profit is found
         # i.e. when the line from where the last knapsacks index between
-        # (max_weight - min_weight) and max_weight do not vary anymore
-        if matrices[i][(max_weight - min_weight):] == matrices[i - 1][(max_weight - min_weight):]:
+        # min_weight and max_weight do not vary anymore
+        if matrices[i][min_weight:] == matrices[i - 1][min_weight:]:
             number_of_items = i
             break
 
