@@ -106,8 +106,7 @@ def subset_actions(list_of_actions, target_price_min, target_price_max, subset, 
 
     # Recursion on subset_actions function for each item of list_of_actions
     for i, item in enumerate(list_of_actions):
-        remaining = list_of_actions[i + 1:]
-        yield from subset_actions(remaining, target_price_min, target_price_max,
+        yield from subset_actions(list_of_actions[i + 1:], target_price_min, target_price_max,
                                   subset + [item], partial_price + item.price)
 
 
@@ -130,10 +129,8 @@ def sum_price(list_of_actions):
 if __name__ == "__main__":
     START_TIME = time.time()
     INVEST = 500.0
-
     with open('data/bruteforce.csv', newline='') as csvfile:
-
-        # read csvfile and store it in a dict named reader
+        # read the whole csvfile and store it in a dictionary named reader
         reader = csv.DictReader(csvfile)
 
         # generate a list of actions from reader
@@ -168,11 +165,9 @@ if __name__ == "__main__":
                 file.write("Somme investie = {:.2f} €\n".format(sum_price(dico['list_of_actions'])))
                 file.write(f"Nombre de combinaisons trouvées : {len(combo_actions)}\n")
                 file.write("Liste des actions\n")
-
                 # Loop to write actions of the list : dico['list_of_actions']
                 for action in dico['list_of_actions']:
                     file.write(action.__str__() + "\n")
-
             else:
                 file.write("Aucune action trouvée pour un gain max = {:.2f} €\n".format(INVEST))
 
