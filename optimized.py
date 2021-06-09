@@ -62,13 +62,23 @@ def calculate_and_print_knapsack(max_weight: int, items: [], results_file) -> No
             number_of_items = i
             break
 
+    # maximum profit
     max_profit = knapsacks[max_weight]
+
+    # investment is the minimum weight corresponding to max_profit
     j = min([j for j in range(max_weight + 1) if knapsacks[j] == max_profit])
 
+    # Write the results in results_file
     with open(results_file, 'w', encoding='utf-8') as file:
         file.write(f'Profit maximal = {max_profit:.2f} €\n')
         file.write(f'Investissement = {(j / 100):.2f} €\n')
         file.write('Liste des actions\n')
+        # Loop to get combination of actions with the max_profit
+        # Iterates i from number_of_items until i == 1 or max_profit <= 0
+        # Whenever i is the minimum where matrices[i][j] == max_profit :
+        #     - write name
+        #     - decrease max_profit from profit (value)
+        #     - decrease j from price (weight)
         for i in range(number_of_items, 0, -1):
             if max_profit <= 0:
                 break
@@ -86,6 +96,8 @@ if __name__ == '__main__':
         help_message()
         sys.exit(0)
     START_TIME = time.time()
+
+    # generate a pandas.DataFrame from file passed in args
     data_frame = pd.read_csv(args.file)
 
     # create a list of items from data_frame adding a column ration (profit/price)
