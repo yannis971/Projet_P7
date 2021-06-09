@@ -147,7 +147,7 @@ if __name__ == "__main__":
         # sort actions in price decreasing order
         actions.sort(key=attrgetter('price'), reverse=True)
 
-        # generate list of combinations of actions with sum_profit
+        # generate the list of combinations with sum_profit(combination)
         # between INVEST_MIN = max(min(actions.price), 0.0)
         #     and INVEST_MAX
         INVEST_MIN = max(actions[-1].price, 0.0)

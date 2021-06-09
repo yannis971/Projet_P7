@@ -48,13 +48,25 @@ def calculate_and_print_knapsack(max_weight: int, items: [], results_file) -> No
     knapsacks = [0] * (max_weight + 1)
     matrices = [knapsacks[:]]
 
-    # Loop to get combination
+    # Loop to generate combinations of actions
+    # Starts from i = 1 until number_of_items included it verifies condition :
+    #     matrices[0][j] = 0 whatever j
     for i in range(1, number_of_items + 1):
+
+        # current item is actually from occurrence i - 1
         (_, price, profit, _) = items[i - 1]
+
+        # generate knapsacks from current item
+        # Starts from j = max_weight until 1 included so that it verifies condition
+        #   matrices[i][0] = 0 whatever i
+        # and it does not need to implement the else part of condition price <= j
         for j in range(max_weight, 0, -1):
             if price <= j:
                 knapsacks[j] = max(knapsacks[j], knapsacks[j - price] + profit)
+
+        # Add a copy of current knapsacks to matrices
         matrices.append(knapsacks[:])
+
         # Quit the loop when max profit is found
         # i.e. when the line from where the last knapsacks index between
         # min_weight and max_weight do not vary anymore
