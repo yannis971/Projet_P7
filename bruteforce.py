@@ -6,7 +6,7 @@
 import csv
 import time
 
-from operator import attrgetter, itemgetter
+from operator import attrgetter
 
 
 class ActionException(Exception):
@@ -29,6 +29,8 @@ class Action:
     def __init__(self, **kwargs):
         for (attr_name, attr_value) in kwargs.items():
             setattr(self, attr_name, attr_value)
+        if self.price <= 0 or self.profit <= 0:
+            raise ActionException(f"Action {self.name} has price or profit is <= 0")
 
     def __str__(self):
         return f"{self._name}, {self._price}, {self._profit}"
@@ -85,7 +87,11 @@ class Action:
                 raise ActionException(f"invalid profit : {value} - {value_error}") from value_error
 
 
-def subset_actions(list_of_actions, target_price_min, target_price_max, subset, partial_price=0):
+def subset_actions(list_of_actions,
+                   target_price_max,
+                   subset,
+                   partial_price=0,
+                   partial_profit=0):
     """
     Fonction genératrice et récursive qui renvoie un objet generator correspondant à la liste
     des N-uplets d'actions dont la somme des prix est égale à un montant cible (target_price)
@@ -95,9 +101,10 @@ def subset_actions(list_of_actions, target_price_min, target_price_max, subset, 
     if target_price_max <= 0.0:
         return
 
-    # Yield the subset (combination of actions) if it matches the condition below
-    if target_price_min <= partial_price <= target_price_max:
-        yield subset
+    # Yield the subset (combination of actions) with its partial_price and partial_profit
+    # if it matches the condition below
+    if 0.0 <= partial_price <= target_price_max:
+        yield subset, partial_price, partial_profit
 
     # Quit generator if list_of_actions is empty or
     # partial_price is greater than target_price_max
@@ -106,29 +113,16 @@ def subset_actions(list_of_actions, target_price_min, target_price_max, subset, 
 
     # Recursion on subset_actions function for each item of list_of_actions
     for i, item in enumerate(list_of_actions):
-        yield from subset_actions(list_of_actions[i + 1:], target_price_min, target_price_max,
-                                  subset + [item], partial_price + item.price)
-
-
-def sum_profit(list_of_actions):
-    """
-    Fonction renvoyant la somme des gains d'une liste d'actions
-    :type list_of_actions: list
-    """
-    return sum([item.profit for item in list_of_actions])
-
-
-def sum_price(list_of_actions):
-    """
-    Fonction renvoyant la somme des gains d'une liste d'actions
-    :type list_of_actions: list
-    """
-    return sum([item.price for item in list_of_actions])
+        yield from subset_actions(list_of_actions[i + 1:],
+                                  target_price_max,
+                                  subset + [item],
+                                  partial_price + item.price,
+                                  partial_profit + item.profit)
 
 
 if __name__ == "__main__":
     START_TIME = time.time()
-    INVEST = 500.0
+    INVEST_MAX = 500.0
     with open('data/bruteforce.csv', newline='') as csvfile:
         # read the whole csvfile and store it in a dictionary named reader
         reader = csv.DictReader(csvfile)
@@ -145,31 +139,28 @@ if __name__ == "__main__":
         actions.sort(key=attrgetter('price'), reverse=True)
 
         # generate the list of combinations with sum_profit(combination)
-        # between INVEST_MIN = max(min(actions.price), 0.0)
-        #     and INVEST_MAX
-        INVEST_MIN = max(actions[-1].price, 0.0)
-        combo_actions = [{'list_of_actions': x, 'sum_profit': sum_profit(x)} for x in
-                         subset_actions(actions, INVEST_MIN, INVEST, [])]
+        # between 0.0 and INVEST_MAX
+        combo_actions = list(subset_actions(actions, INVEST_MAX, []))
 
         # sort list of combinations in sum_profit decreasing order
         # the first item is the combination of actions with the best profit
-        combo_actions.sort(key=itemgetter('sum_profit'), reverse=True)
+        combo_actions.sort(key=lambda x: x[2], reverse=True)
 
         FILE = 'results/results_bruteforce.txt'
 
         # write the results into FILE
         with open(FILE, 'w', encoding='utf-8') as file:
             if combo_actions:
-                dico = combo_actions[0]
-                file.write("Profit maximal = {:.2f} €\n".format(dico['sum_profit']))
-                file.write("Somme investie = {:.2f} €\n".format(sum_price(dico['list_of_actions'])))
+                (list_actions, sum_price, sum_profit) = combo_actions[0]
+                file.write(f"Profit maximal = {sum_profit:.2f} €\n")
+                file.write(f"Somme investie = {sum_price:.2f} €\n")
                 file.write(f"Nombre de combinaisons trouvées : {len(combo_actions)}\n")
                 file.write("Liste des actions\n")
                 # Loop to write actions of the list : dico['list_of_actions']
-                for action in dico['list_of_actions']:
+                for action in list_actions:
                     file.write(action.__str__() + "\n")
             else:
-                file.write("Aucune action trouvée pour un gain max = {:.2f} €\n".format(INVEST))
+                file.write(f"Aucune action trouvée pour un gain max = {INVEST_MAX:.2f} €\n")
 
         END_TIME = time.time()
         # print elapsed time
