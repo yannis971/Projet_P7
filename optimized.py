@@ -118,7 +118,7 @@ if __name__ == '__main__':
                if profit > 0 and price > 0]
 
     # sort items on ratio (profit/price) decreasing order
-    records.sort(key=lambda x: x[3], reverse=True)
+    records.sort(key=lambda x: (x[3], x[2]), reverse=True)
 
     # path to file results
     RESULTS_FILE = args.file.replace("data/", "results/results_").replace("csv", "txt")

@@ -31,6 +31,7 @@ class Action:
             setattr(self, attr_name, attr_value)
         if self.price <= 0 or self.profit <= 0:
             raise ActionException(f"Action {self.name} has price or profit is <= 0")
+        self.ratio = self.profit / self.price
 
     def __str__(self):
         return f"{self._name}, {self._price}, {self._profit}"
@@ -135,8 +136,8 @@ if __name__ == "__main__":
             except ActionException as action_error:
                 print(f"action non prise en compte - {action_error}")
 
-        # sort actions in price decreasing order
-        actions.sort(key=attrgetter('price'), reverse=True)
+        # sort actions in ratio decreasing order
+        actions.sort(key=attrgetter('ratio', 'price'), reverse=False)
 
         # generate the list of combinations with sum_profit(combination)
         # between 0.0 and INVEST_MAX
@@ -152,13 +153,13 @@ if __name__ == "__main__":
         with open(FILE, 'w', encoding='utf-8') as file:
             if combo_actions:
                 (list_actions, sum_price, sum_profit) = combo_actions[0]
-                file.write(f"Profit maximal = {sum_profit:.2f} €\n")
-                file.write(f"Somme investie = {sum_price:.2f} €\n")
-                file.write(f"Nombre de combinaisons trouvées : {len(combo_actions)}\n")
                 file.write("Liste des actions\n")
                 # Loop to write actions of the list : dico['list_of_actions']
                 for action in list_actions:
-                    file.write(action.__str__() + "\n")
+                    file.write(action.name + "\n")
+                file.write(f"Profit maximal = {sum_profit:.2f} €\n")
+                file.write(f"Somme investie = {sum_price:.2f} €\n")
+                print(f"Nombre de combinaisons trouvées : {len(combo_actions)}\n")
             else:
                 file.write(f"Aucune action trouvée pour un gain max = {INVEST_MAX:.2f} €\n")
 
