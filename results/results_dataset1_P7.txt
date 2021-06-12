@@ -1,5 +1,3 @@
-Profit maximal = 2387.63 €
-Investissement = 499.92 €
 Liste des actions
 Share-TQVQ
 Share-CVLS
@@ -91,3 +89,5 @@ Share-QSPX
 Share-KGQI
 Share-DBUJ
 Share-MLGM
+Profit maximal = 2387.63 €
+Somme investie = 499.92 €

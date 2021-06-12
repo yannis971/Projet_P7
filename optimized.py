@@ -79,11 +79,10 @@ def calculate_and_print_knapsack(max_weight: int, items: [], results_file) -> No
 
     # investment is the minimum weight corresponding to max_profit
     j = min([j for j in range(max_weight + 1) if knapsacks[j] == max_profit])
+    invest_min = j / 100
 
     # Write the results in results_file
     with open(results_file, 'w', encoding='utf-8') as file:
-        file.write(f'Profit maximal = {max_profit:.2f} €\n')
-        file.write(f'Investissement = {(j / 100):.2f} €\n')
         file.write('Liste des actions\n')
         # Loop to get combination of actions with the max_profit
         # Iterates i from number_of_items until i == 1 or max_profit <= 0
@@ -100,6 +99,8 @@ def calculate_and_print_knapsack(max_weight: int, items: [], results_file) -> No
             file.write(f'{name}\n')
             max_profit -= profit
             j -= price
+        file.write(f'Profit maximal = {knapsacks[max_weight]:.2f} €\n')
+        file.write(f'Somme investie = {invest_min:.2f} €\n')
 
 
 if __name__ == '__main__':
