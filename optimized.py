@@ -113,13 +113,13 @@ if __name__ == '__main__':
     # generate a pandas.DataFrame from file passed in args
     data_frame = pd.read_csv(args.file)
 
-    # create a list of items from data_frame adding a column ration (profit/price)
+    # create a list of records (type tuple) from data_frame adding a column ratio (profit/price)
     records = [(name, int(price * 100), profit, profit / price)
                for (name, price, profit) in data_frame.to_records(index=False)
                if profit > 0 and price > 0]
 
-    # sort items on ratio (profit/price) then price decreasing order
-    records.sort(key=lambda x: (x[3], x[2]), reverse=True)
+    # sort records on ratio (profit/price) then price decreasing order
+    records.sort(key=lambda x: (x[3], x[1]), reverse=True)
 
     # path to file results
     RESULTS_FILE = args.file.replace("data/", "results/results_").replace("csv", "txt")

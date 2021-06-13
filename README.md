@@ -3,7 +3,7 @@
 
 ### 1) Description de l'application
 
-Ce projet consiste à développer un programme qui permet de choisir pour un client la combinaison d'actions parmi N actions lui permettant de résaliser le meilleur profit pour un investissement maximal (W).
+Ce projet consiste à développer un programme qui permet de choisir pour un client la combinaison d'actions parmi N actions lui permettant de réaliser le meilleur profit pour un investissement maximal (W).
 
 Le programme doit respecter les contraintes suivantes :
 

@@ -52,8 +52,8 @@ if __name__ == '__main__':
                for (name, price, profit) in data_frame.to_records(index=False)
                if profit > 0 and price > 0]
 
-    # sort items on ratio (profit/price) decreasing order
-    records.sort(key=lambda x: (x[3], x[2]), reverse=True)
+    # sort items on ratio (profit/price) then price decreasing order
+    records.sort(key=lambda x: (x[3], x[1]), reverse=True)
 
     # Poids limite
     POIDS_LIMITE = 50000

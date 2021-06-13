@@ -96,6 +96,12 @@ def subset_actions(list_of_actions,
     """
     Fonction genératrice et récursive qui renvoie un objet generator correspondant à la liste
     des N-uplets d'actions dont la somme des prix est égale à un montant cible (target_price)
+    @param list_of_actions : list
+    @param target_price_max : float
+    @param subset : list
+    @param partial_price : float
+    @param partial_profit : float
+    @yield: (subset, partial_price, partial_profit)
     """
 
     # Base Case
@@ -136,7 +142,7 @@ if __name__ == "__main__":
             except ActionException as action_error:
                 print(f"action non prise en compte - {action_error}")
 
-        # sort actions in ratio the price decreasing order
+        # sort actions in ratio then price decreasing order
         actions.sort(key=attrgetter('ratio', 'price'), reverse=False)
 
         # generate the list of combinations with sum_profit(combination)
