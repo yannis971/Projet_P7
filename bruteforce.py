@@ -136,7 +136,7 @@ if __name__ == "__main__":
             except ActionException as action_error:
                 print(f"action non prise en compte - {action_error}")
 
-        # sort actions in ratio decreasing order
+        # sort actions in ratio the price decreasing order
         actions.sort(key=attrgetter('ratio', 'price'), reverse=False)
 
         # generate the list of combinations with sum_profit(combination)
