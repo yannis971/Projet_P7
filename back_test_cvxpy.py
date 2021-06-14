@@ -48,7 +48,7 @@ if __name__ == '__main__':
     data_frame = pd.read_csv(args.file)
 
     # create a list of items from data_frame adding a column ration (profit/price)
-    records = [(name, int(price * 100), profit, profit / price)
+    records = [(name, int(round(price * 100, 0)), profit, profit / price)
                for (name, price, profit) in data_frame.to_records(index=False)
                if profit > 0 and price > 0]
 
@@ -81,7 +81,7 @@ if __name__ == '__main__':
 
     # On précise le solver à utilisé pour résoudre le problème
     # GLPK_MI est un solver dédié au problème de programmation linéaire en nombres entiers
-    probleme_sacados.solve(solver=cvxpy.GLPK_MI, verbose=True)
+    probleme_sacados.solve(solver=cvxpy.GLPK_MI, verbose=False)
 
     # path to file results
     RESULTS_FILE = args.file.replace("data/", "results/cvxpy_results_").replace("csv", "txt")
