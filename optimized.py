@@ -114,7 +114,7 @@ if __name__ == '__main__':
     data_frame = pd.read_csv(args.file)
 
     # create a list of records (type tuple) from data_frame adding a column ratio (profit/price)
-    records = [(name, int(price * 100), profit, profit / price)
+    records = [(name, int(round(price * 100, 0)), profit, profit / price)
                for (name, price, profit) in data_frame.to_records(index=False)
                if profit > 0 and price > 0]
 
